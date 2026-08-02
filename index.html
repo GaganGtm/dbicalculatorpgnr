@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,7 +31,7 @@
         /* Sticky Table Headers */
         #spreadsheet thead tr th { position: sticky; top: 0; z-index: 10; background-color: #1976d2; color: white; }
         #spreadsheet thead tr:first-child th { top: 0; }
-        #spreadsheet thead tr:nth-child(2) th { top: 27px; }
+        #spreadsheet thead tr:nth-child(2) th { top: 27px; } 
 
         #spreadsheet tbody tr:nth-child(even) { background-color: #eaf1fb; } 
         #spreadsheet tbody tr:nth-child(odd) { background-color: #ffffff; }
@@ -147948,7 +147947,7 @@
         outWhzZ.innerText = ""; outWhzS.innerText = "";
         outDbi.innerText = "";
 
-        // If row is entirely blank, do nothing and exit
+        // Entirely blank row check
         if (!sDate && !bDate && !gender && isNaN(w) && isNaN(h) && !childName && !facility) {
             return;
         }
@@ -147998,7 +147997,7 @@
         if (!isNaN(w) && (w < 1.8)) wInput.style.backgroundColor = "pink";
         if (!isNaN(h) && (h < 45)) hInput.style.backgroundColor = "pink";
 
-        // Check for missing mandatory fields
+        // Explicit error capture for missing mandatory data
         if (!sDate || !bDate || !gender || isNaN(w) || isNaN(h)) {
             outDbi.innerText = "Data entry error (Missing Data)";
             outDbi.style.backgroundColor = "#ffeb3b";
@@ -148080,9 +148079,10 @@
         let validTotal = 0;
         let grandTotal = 0;
 
+        // Categorize every single non-empty row mathematically
         rows.forEach(r => {
             let val = r.innerText.trim();
-            if (!val) return; // Skip completely blank rows
+            if (!val) return; 
 
             if(val.startsWith("A")) { counts.A++; validTotal++; grandTotal++; }
             else if(val.startsWith("B")) { counts.B++; validTotal++; grandTotal++; }
@@ -148093,10 +148093,10 @@
             else if(val.startsWith("G")) { counts.G++; validTotal++; grandTotal++; }
             else if(val.startsWith("H")) { counts.H++; validTotal++; grandTotal++; }
             else if(val.startsWith("I")) { counts.I++; validTotal++; grandTotal++; }
-            else if(val.includes("> 5 years")) { counts.Over5++; grandTotal++; }
-            else if(val.includes("Implausible")) { counts.Implausible++; grandTotal++; }
-            else if(val.includes("Data entry error")) { counts.Error++; grandTotal++; }
-            else { counts.Error++; grandTotal++; }
+            else if(val === "Age of the child > 5 years") { counts.Over5++; grandTotal++; }
+            else if(val.startsWith("Implausible data")) { counts.Implausible++; grandTotal++; }
+            else if(val.startsWith("Data entry error")) { counts.Error++; grandTotal++; }
+            else { counts.Error++; grandTotal++; } // Fallback for any stray text 
         });
 
         const categories = [
@@ -148141,11 +148141,12 @@
 
         document.getElementById('summaryBody').innerHTML = html;
         
+        // Exact formatting matching your Excel sheet
         let bottomTableHtml = `
             <tr><td style="font-weight:bold; text-align: left;">DBI Classified</td><td style="text-align:center;">${validTotal}</td></tr>
+            <tr><td style="font-weight:bold; text-align: left;">Children age > 5 years</td><td style="text-align:center;">${counts.Over5}</td></tr>
             <tr><td style="font-weight:bold; text-align: left;">Implausible data</td><td style="text-align:center;">${counts.Implausible}</td></tr>
             <tr><td style="font-weight:bold; text-align: left;">Data entry error</td><td style="text-align:center;">${counts.Error}</td></tr>
-            <tr><td style="font-weight:bold; text-align: left;">Age of the child > 5 years</td><td style="text-align:center;">${counts.Over5}</td></tr>
             <tr style="background:#2e7d32; color:white; font-weight:bold"><td style="text-align: left;">Total (N)</td><td style="text-align:center;">${grandTotal}</td></tr>
         `;
         document.getElementById('secondarySummaryBody').innerHTML = bottomTableHtml;
@@ -148195,7 +148196,7 @@
     function exportCalculatedDataToCSV() {
         let csv = [];
         let rows = document.querySelectorAll("#spreadsheet tr");
-        for (let i = 2; i < rows.length; i++) { // Skip headers
+        for (let i = 2; i < rows.length; i++) { 
             let row = [], cols = rows[i].querySelectorAll("td");
             if (cols.length > 0) {
                 let sn = cols[0].innerText;
@@ -148215,7 +148216,7 @@
                 let whzS = cols[14].innerText;
                 let dbi = cols[15].innerText;
                 
-                // Skip exporting completely empty rows
+                // Skip entirely empty rows in export
                 if (!sDate && !bDate && !gender && !wt && !ht && !child && !fac) continue;
 
                 row.push(`"${sn}","${fac}","${child}","${sDate}","${bDate}","${ageM}","${gender}","${wt}","${ht}","${wazZ}","${wazS}","${hazZ}","${hazS}","${whzZ}","${whzS}","${dbi}"`);
