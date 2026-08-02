@@ -148062,14 +148062,16 @@
 
         outDbi.innerText = dbi;
         
-        if (dbi.startsWith("A")) {
+        // Use stricter matching for assigning backgrounds
+        if (dbi.startsWith("A (")) {
             outDbi.style.backgroundColor = "#4caf50";
             outDbi.style.color = "white";
-        } else if (dbi.startsWith("D")) {
+        } else if (dbi.startsWith("D (")) {
             outDbi.style.backgroundColor = "#f44336";
             outDbi.style.color = "white";
-        } else if (dbi === "Implausible data") {
+        } else if (dbi.startsWith("Implausible")) {
             outDbi.style.backgroundColor = "#e0e0e0";
+            outDbi.style.color = "black";
         }
     }
 
@@ -148079,23 +148081,24 @@
         let validTotal = 0;
         let grandTotal = 0;
 
-        // Categorize every single non-empty row mathematically
+        // Categorize every single non-empty row mathematically using STRICT logic
         rows.forEach(r => {
             let val = r.innerText.trim();
             if (!val) return; 
 
-            if(val.startsWith("A")) { counts.A++; validTotal++; grandTotal++; }
-            else if(val.startsWith("B")) { counts.B++; validTotal++; grandTotal++; }
-            else if(val.startsWith("C")) { counts.C++; validTotal++; grandTotal++; }
-            else if(val.startsWith("D")) { counts.D++; validTotal++; grandTotal++; }
-            else if(val.startsWith("E")) { counts.E++; validTotal++; grandTotal++; }
-            else if(val.startsWith("F")) { counts.F++; validTotal++; grandTotal++; }
-            else if(val.startsWith("G")) { counts.G++; validTotal++; grandTotal++; }
-            else if(val.startsWith("H")) { counts.H++; validTotal++; grandTotal++; }
-            else if(val.startsWith("I")) { counts.I++; validTotal++; grandTotal++; }
-            else if(val === "Age of the child > 5 years") { counts.Over5++; grandTotal++; }
-            else if(val.startsWith("Implausible data")) { counts.Implausible++; grandTotal++; }
-            else if(val.startsWith("Data entry error")) { counts.Error++; grandTotal++; }
+            // Strict checking prevents text like "Age > 5" from matching "A (Normal)"
+            if(val.startsWith("A (")) { counts.A++; validTotal++; grandTotal++; }
+            else if(val.startsWith("B (")) { counts.B++; validTotal++; grandTotal++; }
+            else if(val.startsWith("C (")) { counts.C++; validTotal++; grandTotal++; }
+            else if(val.startsWith("D (")) { counts.D++; validTotal++; grandTotal++; }
+            else if(val.startsWith("E (")) { counts.E++; validTotal++; grandTotal++; }
+            else if(val.startsWith("F (")) { counts.F++; validTotal++; grandTotal++; }
+            else if(val.startsWith("G (")) { counts.G++; validTotal++; grandTotal++; }
+            else if(val.startsWith("H (")) { counts.H++; validTotal++; grandTotal++; }
+            else if(val.startsWith("I (")) { counts.I++; validTotal++; grandTotal++; }
+            else if(val.includes("> 5 years")) { counts.Over5++; grandTotal++; }
+            else if(val.includes("Implausible")) { counts.Implausible++; grandTotal++; }
+            else if(val.includes("Data entry error")) { counts.Error++; grandTotal++; }
             else { counts.Error++; grandTotal++; } // Fallback for any stray text 
         });
 
@@ -148141,7 +148144,6 @@
 
         document.getElementById('summaryBody').innerHTML = html;
         
-        // Exact formatting matching your Excel sheet
         let bottomTableHtml = `
             <tr><td style="font-weight:bold; text-align: left;">DBI Classified</td><td style="text-align:center;">${validTotal}</td></tr>
             <tr><td style="font-weight:bold; text-align: left;">Children age > 5 years</td><td style="text-align:center;">${counts.Over5}</td></tr>
